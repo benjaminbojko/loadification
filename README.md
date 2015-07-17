@@ -12,6 +12,7 @@ var myLoadification = new Loadification(myDomElement);
 myLoadification.on(Loadification.LOADED, function(){
 	console.log(myDomElement.getBoundingClientRect());
 });
+myLoadification.start();
 ```
 
 ## Requirements
