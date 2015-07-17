@@ -1,0 +1,23 @@
+{
+  "boss": true,
+  "browser": true,
+  "curly": true,
+  "esnext": true,
+  "eqeqeq": true,
+  "eqnull": true,
+  "expr": true,
+  "immed": true,
+  "jquery": true,
+  "noarg": true,
+  "onevar": true,
+  "quotmark": "single",
+  "smarttabs": true,
+  "trailing": true,
+  "undef": true,
+  "unused": true,
+  "globals": {
+    "EventEmitter": true,
+    "Promise": true,
+    "console": true
+  }
+}

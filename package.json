@@ -1,0 +1,26 @@
+{
+  "name": "loadification",
+  "version": "1.0.0",
+  "description": "Standalone JS script to notify when images or videos are loaded within an element.",
+  "main": "loadification.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benjaminbojko/loadification.git"
+  },
+  "keywords": [
+    "js",
+    "images",
+    "video",
+    "loading",
+    "events"
+  ],
+  "author": "Benjamin Bojko",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/benjaminbojko/loadification/issues"
+  },
+  "homepage": "https://github.com/benjaminbojko/loadification#readme"
+}
