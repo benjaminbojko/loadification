@@ -1,6 +1,6 @@
 {
   "name": "loadification",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Standalone JS script to notify when images or videos are loaded within an element.",
   "main": "loadification.js",
   "scripts": {

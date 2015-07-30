@@ -1,74 +1,122 @@
-/* global require, module */
+/* global module */
 
 (function(module) {
   'use strict';
   
-  require('./util/function.bind.polyfill');
-  
-  var util = require('util');
-  var events = require('events');
-  
   /**
    *
    */
-  function Loadification(domElement) {
-    events.EventEmitter.apply(this);
-    
+  function Loadification(domElement, optTagNames) {
     this.domElement = domElement;
+    this.tagNames = optTagNames || ['img', 'video'];
     this.items = [];
     this.itemsLoaded = 0;
-    this.handleItemLoaded = this.handleItemLoaded.bind(this);
-  }
-  
-  util.inherits(Loadification, events.EventEmitter);
-  
-  Loadification.LOADED = 'loaded';
-
-  Loadification.prototype.start = function() {
-    var i;
-    var item;
     
+    this.fnItemLoaded = null;
+    this.fnItemError = null;
+  }
+
+  Loadification.prototype.listen = function(fnCompletion, fnError) {
     // clean up
-    for (i = 0; i < this.items.length; i++) {
-      item = this.items[i];
-      item.removeEventListener('load', this.handleItemLoaded);
-      item.removeEventListener('loadedmetadata', this.handleItemLoaded);
-    }
+    this.reset();
 
     // reset
-    this.items = this.domElement.querySelectorAll('img, video');
+    this.items = this.getItems();
     this.itemsLoaded = 0;
     
     // fire signal if no items found
     if (this.items.length === 0) {
-      this.emit(Loadification.LOADED, this);
+      fnCompletion(this);
       return;
     }
+    
+    this.fnItemLoaded = this.getFnItemLoaded(fnCompletion);
+    this.fnItemError = this.getFnItemError(fnError);
 
     // add listeners/check load state
-    for (i = 0; i < this.items.length; i++) {
-      item = this.items[i];
+    for (var i = 0; i < this.items.length; i++) {
+      var item = this.items[i];
 
       if (!!item.width || !!item.height) {
-        this.handleItemLoaded();
+        this.fnItemLoaded();
         continue;
       }
       
+      item.addEventListener('error', this.fnItemError);
+      
       if (item.tagName.toLowerCase() === 'video') {
-        item.addEventListener('loadedmetadata', this.handleItemLoaded);
+        item.addEventListener('loadedmetadata', this.fnItemLoaded);
         
       } else {
-        item.addEventListener('load', this.handleItemLoaded);
+        item.addEventListener('load', this.fnItemLoaded);
       }
     }
   };
 
-  Loadification.prototype.handleItemLoaded = function() {
-    this.itemsLoaded++;
-    
-    if (this.itemsLoaded >= this.items.length) {
-      this.emit(Loadification.LOADED, this);
+  Loadification.prototype.reset = function() {
+    if (this.fnItemLoaded) {
+      for (var i = 0; i < this.items.length; i++) {
+        var item = this.items[i];
+        item.removeEventListener('loadedmetadata', this.fnItemLoaded);
+        item.removeEventListener('load', this.fnItemLoaded);
+        item.removeEventListener('error', this.fnItemError);
+      }
     }
+    
+    this.fnItemLoaded = null;
+    this.items = null;
+    this.itemsLoaded = 0;
+  };
+  
+  //===================================
+  // Helpers
+  //
+  
+  Loadification.prototype.getItems = function() {
+    if ('querySelectorAll' in this.domElement) {
+      return this.domElement.querySelectorAll(this.tagNames.join(', '));
+    }
+    
+    var elements = [];
+    
+    for (var i = 0; i < this.tagNames.length; i++) {
+      var tagName = this.tagNames[i];
+      var elementsByTag = this.domElement.getElementsByTagName(tagName);
+      
+      for (var j = 0; j < elementsByTag.length; j++) {
+        elements.push(elementsByTag[j]);
+      }
+    }
+    
+    return elements;
+  };
+  
+  Loadification.prototype.getFnItemLoaded = function(fnCompletion) {
+    var self = this;
+    
+    // Create event handler bound to self with correct callback
+    return function(event) {
+      self.itemsLoaded++;
+      
+      if (self.itemsLoaded >= self.items.length) {
+        if (fnCompletion) {
+          fnCompletion(self, event);
+        }
+        self.reset();
+      }
+    };
+  };
+  
+  Loadification.prototype.getFnItemError = function(fnError) {
+    var self = this;
+    
+    // Create event handler bound to self with correct callback
+    return function(event) {
+      if (fnError) {
+        fnError(self, event);
+      }
+      self.reset();
+    };
   };
   
   module.exports = Loadification;
