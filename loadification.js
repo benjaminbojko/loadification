@@ -34,8 +34,9 @@
     this.fnItemError = this.getFnItemError(fnError);
 
     // add listeners/check load state
-    for (var i = 0; i < this.items.length; i++) {
-      var item = this.items[i];
+    var items = this.items;
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
 
       if (!!item.width || !!item.height) {
         this.fnItemLoaded();
